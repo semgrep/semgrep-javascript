@@ -5,7 +5,7 @@
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #endif
 
-#define LANGUAGE_VERSION 11
+#define LANGUAGE_VERSION 12
 #define STATE_COUNT 1002
 #define LARGE_STATE_COUNT 161
 #define SYMBOL_COUNT 229
@@ -303,7 +303,7 @@ static const char *ts_symbol_names[] = {
   [anon_sym_extends] = "extends",
   [anon_sym_function] = "function",
   [anon_sym_EQ_GT] = "=>",
-  [anon_sym_QMARK_DOT] = "?.",
+  [anon_sym_QMARK_DOT] = "\?.",
   [anon_sym_new] = "new",
   [anon_sym_PLUS_EQ] = "+=",
   [anon_sym_DASH_EQ] = "-=",
@@ -319,9 +319,9 @@ static const char *ts_symbol_names[] = {
   [anon_sym_STAR_STAR_EQ] = "**=",
   [anon_sym_AMP_AMP_EQ] = "&&=",
   [anon_sym_PIPE_PIPE_EQ] = "||=",
-  [anon_sym_QMARK_QMARK_EQ] = "??=",
+  [anon_sym_QMARK_QMARK_EQ] = "\?\?=",
   [anon_sym_DOT_DOT_DOT] = "...",
-  [anon_sym_QMARK] = "?",
+  [anon_sym_QMARK] = "\?",
   [anon_sym_AMP_AMP] = "&&",
   [anon_sym_PIPE_PIPE] = "||",
   [anon_sym_GT_GT] = ">>",
@@ -340,7 +340,7 @@ static const char *ts_symbol_names[] = {
   [anon_sym_BANG_EQ] = "!=",
   [anon_sym_BANG_EQ_EQ] = "!==",
   [anon_sym_GT_EQ] = ">=",
-  [anon_sym_QMARK_QMARK] = "??",
+  [anon_sym_QMARK_QMARK] = "\?\?",
   [anon_sym_instanceof] = "instanceof",
   [anon_sym_BANG] = "!",
   [anon_sym_TILDE] = "~",
@@ -1999,6 +1999,10 @@ static const TSFieldMapEntry ts_field_map_entries[] = {
 
 static TSSymbol ts_alias_sequences[74][MAX_ALIAS_SEQUENCE_LENGTH] = {
   [0] = {0},
+};
+
+static uint16_t ts_non_terminal_alias_map[] = {
+  0,
 };
 
 static inline bool sym_identifier_character_set_1(int32_t lookahead) {
@@ -44920,25 +44924,17 @@ extern const TSLanguage *tree_sitter_javascript(void) {
     .symbol_count = SYMBOL_COUNT,
     .alias_count = ALIAS_COUNT,
     .token_count = TOKEN_COUNT,
-    .large_state_count = LARGE_STATE_COUNT,
+    .external_token_count = EXTERNAL_TOKEN_COUNT,
+    .symbol_names = ts_symbol_names,
     .symbol_metadata = ts_symbol_metadata,
-    .parse_table = (const unsigned short *)ts_parse_table,
-    .small_parse_table = (const uint16_t *)ts_small_parse_table,
-    .small_parse_table_map = (const uint32_t *)ts_small_parse_table_map,
+    .parse_table = (const uint16_t *)ts_parse_table,
     .parse_actions = ts_parse_actions,
     .lex_modes = ts_lex_modes,
-    .symbol_names = ts_symbol_names,
-    .public_symbol_map = ts_symbol_map,
     .alias_sequences = (const TSSymbol *)ts_alias_sequences,
-    .field_count = FIELD_COUNT,
-    .field_names = ts_field_names,
-    .field_map_slices = (const TSFieldMapSlice *)ts_field_map_slices,
-    .field_map_entries = (const TSFieldMapEntry *)ts_field_map_entries,
     .max_alias_sequence_length = MAX_ALIAS_SEQUENCE_LENGTH,
     .lex_fn = ts_lex,
     .keyword_lex_fn = ts_lex_keywords,
     .keyword_capture_token = sym_identifier,
-    .external_token_count = EXTERNAL_TOKEN_COUNT,
     .external_scanner = {
       (const bool *)ts_external_scanner_states,
       ts_external_scanner_symbol_map,
@@ -44948,6 +44944,16 @@ extern const TSLanguage *tree_sitter_javascript(void) {
       tree_sitter_javascript_external_scanner_serialize,
       tree_sitter_javascript_external_scanner_deserialize,
     },
+    .field_count = FIELD_COUNT,
+    .field_map_slices = (const TSFieldMapSlice *)ts_field_map_slices,
+    .field_map_entries = (const TSFieldMapEntry *)ts_field_map_entries,
+    .field_names = ts_field_names,
+    .large_state_count = LARGE_STATE_COUNT,
+    .small_parse_table = (const uint16_t *)ts_small_parse_table,
+    .small_parse_table_map = (const uint32_t *)ts_small_parse_table_map,
+    .public_symbol_map = ts_symbol_map,
+    .alias_map = ts_non_terminal_alias_map,
+    .state_count = STATE_COUNT,
   };
   return &language;
 }
