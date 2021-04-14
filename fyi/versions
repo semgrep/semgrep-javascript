@@ -1,0 +1,28 @@
+File: semgrep-grammars/src/tree-sitter-javascript/LICENSE
+Git repo name: ocaml-tree-sitter
+Last git commit:
+  commit 13ec71b610a54adf56482ab78926e9ade220f45f
+  Author: Martin Jambon <martin@returntocorp.com>
+  Date:   Tue Feb 9 14:29:44 2021 -0800
+  
+      Update generated files
+---
+File: semgrep-grammars/src/tree-sitter-javascript/grammar.js
+Git repo name: ocaml-tree-sitter
+Last git commit:
+  commit 13ec71b610a54adf56482ab78926e9ade220f45f
+  Author: Martin Jambon <martin@returntocorp.com>
+  Date:   Tue Feb 9 14:29:44 2021 -0800
+  
+      Update generated files
+---
+File: semgrep-grammars/src/semgrep-javascript/grammar.js
+Git repo name: ocaml-tree-sitter
+Last git commit:
+  commit 9bca49eafc8489bc0d508057079bec9b7d10f65e
+  Author: Martin Jambon <martin@returntocorp.com>
+  Date:   Wed Apr 14 16:44:28 2021 -0700
+  
+      Include new file 'fyi/versions' that tracks git info associated with
+      each file in the "FYI" list.
+---
