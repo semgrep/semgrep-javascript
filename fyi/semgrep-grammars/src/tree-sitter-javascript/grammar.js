@@ -805,12 +805,6 @@ module.exports = grammar({
     // Primitives
     //
 
-    // Here we tolerate unescaped newlines in double-quoted and
-    // single-quoted string literals.
-    // This is legal in typescript as jsx/tsx attribute values (as of
-    // 2020), and perhaps will be valid in javascript as well in the
-    // future.
-    //
     string: $ => choice(
       seq(
         '"',
