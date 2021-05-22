@@ -1,6 +1,6 @@
 File: semgrep-grammars/src/tree-sitter-javascript/LICENSE
 Git repo name: tree-sitter-javascript
-Latest commit in repo: 40a14276269af63cc45e67f5c1ca644c4560354b
+Latest commit in repo: 13ec71b610a54adf56482ab78926e9ade220f45f
 Last change in file:
   commit 236a8dc0e5116ca1aca483b1a90df07f4bf3177e
   Author: Max Brunsfeld <maxbrunsfeld@gmail.com>
@@ -10,26 +10,21 @@ Last change in file:
 ---
 File: semgrep-grammars/src/tree-sitter-javascript/grammar.js
 Git repo name: tree-sitter-javascript
-Latest commit in repo: 40a14276269af63cc45e67f5c1ca644c4560354b
+Latest commit in repo: 13ec71b610a54adf56482ab78926e9ade220f45f
 Last change in file:
-  commit e4eb58243f28eb5a6a7687e51115fb3e77d2891a
+  commit ce5f2e772506b5217c18d7b6f6b8fbf2a4625e76
   Author: Martin Jambon <martin@returntocorp.com>
-  Date:   Mon Apr 19 17:33:16 2021 -0700
+  Date:   Tue Feb 9 14:28:27 2021 -0800
   
-      Remove conflict declaration that was left over by accident
+      Replicate pending pull request https://github.com/tree-sitter/tree-sitter-javascript/pull/140/files
 ---
 File: semgrep-grammars/src/semgrep-javascript/grammar.js
 Git repo name: ocaml-tree-sitter
-Latest commit in repo: 87ccee6606df7694e738043ae0901aecf22b22b3
+Latest commit in repo: d9280f3aeeaf41af7538f980a8715fec88f62034
 Last change in file:
-  commit 1cfa0a2c63a1218cf7752cb1504689eed2511548
-  Merge: e5e0c02 dbc2761
-  Author: Martin Jambon <martin@mjambon.com>
-  Date:   Fri Feb 5 17:06:26 2021 -0800
+  commit 92e954056c616a1a94cf84a54486776644397b98
+  Author: Martin Jambon <martin@r2c.dev>
+  Date:   Fri May 21 13:26:57 2021 -0700
   
-      Add 'lang/semgrep-grammars/' from commit 'dbc2761d2c62e60d2181d777393f9eaea08673a1'
-      
-      git-subtree-dir: lang/semgrep-grammars
-      git-subtree-mainline: e5e0c029006cf2d087615cc1420db28550c9ad38
-      git-subtree-split: dbc2761d2c62e60d2181d777393f9eaea08673a1
+      Add maintenance note
 ---

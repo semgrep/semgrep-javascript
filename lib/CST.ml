@@ -8,7 +8,10 @@
 open! Sexplib.Conv
 open Tree_sitter_run
 
-type imm_tok_pat_3a2a380 = Token.t (* pattern "[^\"\\\\]+" *)
+type semgrep_metavar = Token.t (* pattern \$[a-zA-Z_][a-zA-Z_0-9]* *)
+[@@deriving sexp_of]
+
+type imm_tok_pat_3f3cd4d = Token.t (* pattern "[^\"\\\\\\n]+|\\\\?\\r?\\n" *)
 [@@deriving sexp_of]
 
 type identifier = Token.t
@@ -41,7 +44,6 @@ type reserved_identifier = [
   | `Set of Token.t (* "set" *)
   | `Async of Token.t (* "async" *)
   | `Static of Token.t (* "static" *)
-  | `Export of Token.t (* "export" *)
 ]
 [@@deriving sexp_of]
 
@@ -60,7 +62,7 @@ type escape_sequence = Token.t
 type template_chars = Token.t
 [@@deriving sexp_of]
 
-type imm_tok_pat_dc28280 = Token.t (* pattern "[^'\\\\]+" *)
+type imm_tok_pat_a3af5dd = Token.t (* pattern "[^'\\\\\\n]+|\\\\?\\r?\\n" *)
 [@@deriving sexp_of]
 
 type import_export_specifier = (
@@ -116,19 +118,19 @@ type anon_choice_id_0e3c97f = [
 [@@deriving sexp_of]
 
 type string_ = [
-    `DQUOT_rep_choice_imm_tok_pat_3a2a380_DQUOT of (
+    `DQUOT_rep_choice_imm_tok_pat_3f3cd4d_DQUOT of (
         Token.t (* "\"" *)
       * [
-            `Imm_tok_pat_3a2a380 of imm_tok_pat_3a2a380 (*tok*)
+            `Imm_tok_pat_3f3cd4d of imm_tok_pat_3f3cd4d (*tok*)
           | `Esc_seq of escape_sequence (*tok*)
         ]
           list (* zero or more *)
       * Token.t (* "\"" *)
     )
-  | `SQUOT_rep_choice_imm_tok_pat_dc28280_SQUOT of (
+  | `SQUOT_rep_choice_imm_tok_pat_a3af5dd_SQUOT of (
         Token.t (* "'" *)
       * [
-            `Imm_tok_pat_dc28280 of imm_tok_pat_dc28280 (*tok*)
+            `Imm_tok_pat_a3af5dd of imm_tok_pat_a3af5dd (*tok*)
           | `Esc_seq of escape_sequence (*tok*)
         ]
           list (* zero or more *)
@@ -148,7 +150,10 @@ type jsx_namespace_name = (
 )
 [@@deriving sexp_of]
 
-type from_clause = (Token.t (* "from" *) * string_)
+type from_clause = (
+    Token.t (* "from" *)
+  * [ `Str of string_ | `Semg_meta of semgrep_metavar (*tok*) ]
+)
 [@@deriving sexp_of]
 
 type named_imports = (
@@ -203,40 +208,33 @@ type jsx_closing_element = (
 )
 [@@deriving sexp_of]
 
-type anon_choice_exp_9818c1b = [
+type anon_choice_exp_6ded967 = [
+    `Exp of expression
+  | `Choice_this of primary_expression
+]
+
+and anon_choice_exp_9818c1b = [
     `Exp of expression
   | `Spread_elem of spread_element
 ]
 
-and anon_choice_exp_9cd0ed5 = [
-    `Exp of expression
-  | `Prim_exp of primary_expression
-]
-
-and anon_choice_id_940079a = [
+and anon_choice_id_21dd422 = [
     `Id of identifier (*tok*)
-  | `Dest_pat of destructuring_pattern
+  | `Choice_obj of destructuring_pattern
 ]
 
-and anon_choice_pair_20c9acd = [
+and anon_choice_pair_5c8e4b4 = [
     `Pair of (property_name * Token.t (* ":" *) * expression)
   | `Spread_elem of spread_element
   | `Meth_defi of method_definition
+  | `Assign_pat of assignment_pattern
   | `Choice_id of anon_choice_id_0e3c97f
+  | `Semg_dots of Token.t (* "..." *)
 ]
 
-and anon_choice_pair_pat_3ff9cbe = [
-    `Pair_pat of (property_name * Token.t (* ":" *) * pattern)
-  | `Rest_pat of rest_pattern
-  | `Obj_assign_pat of (
-        [
-            `Choice_choice_get of anon_choice_rese_id_9a83200
-          | `Dest_pat of destructuring_pattern
-        ]
-      * Token.t (* "=" *)
-      * expression
-    )
-  | `Choice_id of anon_choice_id_0e3c97f
+and anon_choice_paren_exp_8725fb4 = [
+    `Paren_exp of parenthesized_expression
+  | `Choice_member_exp of lhs_expression
 ]
 
 and anon_opt_opt_choice_exp_rep_COMMA_opt_choice_exp_208ebb4 =
@@ -251,6 +249,21 @@ and arguments = (
     Token.t (* "(" *)
   * anon_opt_opt_choice_exp_rep_COMMA_opt_choice_exp_208ebb4
   * Token.t (* ")" *)
+)
+
+and array_ = (
+    Token.t (* "[" *)
+  * anon_opt_opt_choice_exp_rep_COMMA_opt_choice_exp_208ebb4
+  * Token.t (* "]" *)
+)
+
+and assignment_pattern = (
+    [
+        `Choice_choice_get of anon_choice_rese_id_9a83200
+      | `Choice_obj of destructuring_pattern
+    ]
+  * Token.t (* "=" *)
+  * expression
 )
 
 and augmented_assignment_lhs = [
@@ -294,7 +307,7 @@ and call_expression = [
         expression
       * [ `Args of arguments | `Temp_str of template_string ]
     )
-  | `Prim_exp_QMARKDOT_args of (
+  | `Choice_this_QMARKDOT_args of (
         primary_expression * Token.t (* "?." *) * arguments
     )
 ]
@@ -303,7 +316,7 @@ and call_signature = formal_parameters
 
 and catch_clause = (
     Token.t (* "catch" *)
-  * (Token.t (* "(" *) * anon_choice_id_940079a * Token.t (* ")" *)) option
+  * (Token.t (* "(" *) * anon_choice_id_21dd422 * Token.t (* ")" *)) option
   * statement_block
 )
 
@@ -314,6 +327,7 @@ and class_body = (
       | `Public_field_defi_choice_auto_semi of (
             public_field_definition * semicolon
         )
+      | `Semg_dots of Token.t (* "..." *)
     ]
       list (* zero or more *)
   * Token.t (* "}" *)
@@ -326,7 +340,7 @@ and declaration = [
         Token.t (* "async" *) option
       * Token.t (* "function" *)
       * identifier (*tok*)
-      * call_signature
+      * formal_parameters
       * statement_block
       * automatic_semicolon (*tok*) option
     )
@@ -335,7 +349,7 @@ and declaration = [
       * Token.t (* "function" *)
       * Token.t (* "*" *)
       * identifier (*tok*)
-      * call_signature
+      * formal_parameters
       * statement_block
       * automatic_semicolon (*tok*) option
     )
@@ -362,28 +376,7 @@ and decorator = (
 
 and decorator_call_expression = (anon_choice_id_b8f8ced * arguments)
 
-and destructuring_pattern = [
-    `Obj_pat of (
-        Token.t (* "{" *)
-      * (
-            anon_choice_pair_pat_3ff9cbe option
-          * (Token.t (* "," *) * anon_choice_pair_pat_3ff9cbe option)
-              list (* zero or more *)
-        )
-          option
-      * Token.t (* "}" *)
-    )
-  | `Array_pat of (
-        Token.t (* "[" *)
-      * (
-            formal_parameter option
-          * (Token.t (* "," *) * formal_parameter option)
-              list (* zero or more *)
-        )
-          option
-      * Token.t (* "]" *)
-    )
-]
+and destructuring_pattern = [ `Obj of object_ | `Array of array_ ]
 
 and else_clause = (Token.t (* "else" *) * statement)
 
@@ -405,28 +398,19 @@ and export_statement = [
       * Token.t (* "export" *)
       * [
             `Decl of declaration
-          | `Defa_choice_decl of (
-                Token.t (* "default" *)
-              * [
-                    `Decl of declaration
-                  | `Exp_choice_auto_semi of (expression * semicolon)
-                ]
+          | `Defa_exp_choice_auto_semi of (
+                Token.t (* "default" *) * expression * semicolon
             )
         ]
     )
 ]
 
 and expression = [
-    `Prim_exp of primary_expression
+    `Choice_this of primary_expression
   | `Choice_jsx_elem of jsx_element_
   | `Jsx_frag of jsx_fragment
   | `Assign_exp of (
-        [
-            `Paren_exp of parenthesized_expression
-          | `Choice_member_exp of lhs_expression
-        ]
-      * Token.t (* "=" *)
-      * expression
+        anon_choice_paren_exp_8725fb4 * Token.t (* "=" *) * expression
     )
   | `Augm_assign_exp of (
         augmented_assignment_lhs
@@ -465,6 +449,10 @@ and expression = [
           | `Opt_exp of expression option
         ]
     )
+  | `Semg_dots of Token.t (* "..." *)
+  | `Semg_deep_exp of (
+        Token.t (* "<..." *) * expression * Token.t (* "...>" *)
+    )
 ]
 
 and expression_statement = (expressions * semicolon)
@@ -476,27 +464,24 @@ and finally_clause = (Token.t (* "finally" *) * statement_block)
 and for_header = (
     Token.t (* "(" *)
   * [
-        `Choice_choice_member_exp of [
-            `Choice_member_exp of lhs_expression
-          | `Paren_exp of parenthesized_expression
-        ]
-      | `Choice_var_choice_id of (
-            [
-                `Var of Token.t (* "var" *)
-              | `Let of Token.t (* "let" *)
-              | `Const of Token.t (* "const" *)
-            ]
-          * anon_choice_id_940079a
-        )
+        `Var of Token.t (* "var" *)
+      | `Let of Token.t (* "let" *)
+      | `Const of Token.t (* "const" *)
     ]
+      option
+  * anon_choice_paren_exp_8725fb4
   * [ `In of Token.t (* "in" *) | `Of of Token.t (* "of" *) ]
   * expressions
   * Token.t (* ")" *)
 )
 
 and formal_parameter = [
-    `Pat of pattern
-  | `Assign_pat of (pattern * Token.t (* "=" *) * expression)
+    `Id of identifier (*tok*)
+  | `Choice_get of reserved_identifier
+  | `Choice_obj of destructuring_pattern
+  | `Assign_pat of assignment_pattern
+  | `Rest_param of (Token.t (* "..." *) * anon_choice_id_21dd422)
+  | `Semg_dots of Token.t (* "..." *)
 ]
 
 and formal_parameters = (
@@ -518,6 +503,7 @@ and jsx_attribute_ = [
       * (Token.t (* "=" *) * jsx_attribute_value) option
     )
   | `Jsx_exp of jsx_expression
+  | `Semg_dots of Token.t (* "..." *)
 ]
 
 and jsx_attribute_value = [
@@ -525,6 +511,8 @@ and jsx_attribute_value = [
   | `Jsx_exp of jsx_expression
   | `Choice_jsx_elem of jsx_element_
   | `Jsx_frag of jsx_fragment
+  | `Semg_dots of Token.t (* "..." *)
+  | `Semg_meta of semgrep_metavar (*tok*)
 ]
 
 and jsx_child = [
@@ -588,13 +576,13 @@ and lhs_expression = [
   | `Subs_exp of subscript_expression
   | `Id of identifier (*tok*)
   | `Choice_get of reserved_identifier
-  | `Dest_pat of destructuring_pattern
+  | `Choice_obj of destructuring_pattern
 ]
 
 and member_expression = (
-    anon_choice_exp_9cd0ed5
+    anon_choice_exp_6ded967
   * [ `DOT of Token.t (* "." *) | `QMARKDOT of Token.t (* "?." *) ]
-  * identifier (*tok*)
+  * [ `Id of identifier (*tok*) | `Semg_dots of Token.t (* "..." *) ]
 )
 
 and method_definition = (
@@ -608,29 +596,30 @@ and method_definition = (
     ]
       option
   * property_name
-  * call_signature
+  * formal_parameters
   * statement_block
+)
+
+and object_ = (
+    Token.t (* "{" *)
+  * (
+        anon_choice_pair_5c8e4b4 option
+      * (Token.t (* "," *) * anon_choice_pair_5c8e4b4 option)
+          list (* zero or more *)
+    )
+      option
+  * Token.t (* "}" *)
 )
 
 and parenthesized_expression = (
     Token.t (* "(" *) * expressions * Token.t (* ")" *)
 )
 
-and pattern = [
-    `Id of identifier (*tok*)
-  | `Choice_get of reserved_identifier
-  | `Dest_pat of destructuring_pattern
-  | `Rest_pat of rest_pattern
-]
-
 and primary_expression = [
-    `Subs_exp of subscript_expression
-  | `Member_exp of member_expression
-  | `Paren_exp of parenthesized_expression
+    `This of Token.t (* "this" *)
+  | `Super of Token.t (* "super" *)
   | `Id of identifier (*tok*)
   | `Choice_get of reserved_identifier
-  | `This of Token.t (* "this" *)
-  | `Super of Token.t (* "super" *)
   | `Num of number (*tok*)
   | `Str of string_
   | `Temp_str of template_string
@@ -645,26 +634,13 @@ and primary_expression = [
   | `Null of Token.t (* "null" *)
   | `Unde of Token.t (* "undefined" *)
   | `Import of import (*tok*)
-  | `Obj of (
-        Token.t (* "{" *)
-      * (
-            anon_choice_pair_20c9acd option
-          * (Token.t (* "," *) * anon_choice_pair_20c9acd option)
-              list (* zero or more *)
-        )
-          option
-      * Token.t (* "}" *)
-    )
-  | `Array of (
-        Token.t (* "[" *)
-      * anon_opt_opt_choice_exp_rep_COMMA_opt_choice_exp_208ebb4
-      * Token.t (* "]" *)
-    )
+  | `Obj of object_
+  | `Array of array_
   | `Func of (
         Token.t (* "async" *) option
       * Token.t (* "function" *)
       * identifier (*tok*) option
-      * call_signature
+      * formal_parameters
       * statement_block
     )
   | `Arrow_func of (
@@ -681,7 +657,7 @@ and primary_expression = [
       * Token.t (* "function" *)
       * Token.t (* "*" *)
       * identifier (*tok*) option
-      * call_signature
+      * formal_parameters
       * statement_block
     )
   | `Class of (
@@ -691,6 +667,9 @@ and primary_expression = [
       * class_heritage option
       * class_body
     )
+  | `Paren_exp of parenthesized_expression
+  | `Subs_exp of subscript_expression
+  | `Member_exp of member_expression
   | `Meta_prop of (
         Token.t (* "new" *) * Token.t (* "." *) * Token.t (* "target" *)
     )
@@ -705,13 +684,10 @@ and property_name = [
 ]
 
 and public_field_definition = (
-    decorator list (* zero or more *)
-  * Token.t (* "static" *) option
+    Token.t (* "static" *) option
   * property_name
   * initializer_ option
 )
-
-and rest_pattern = (Token.t (* "..." *) * anon_choice_id_940079a)
 
 and sequence_expression = (
     expression
@@ -797,6 +773,10 @@ and statement = [
   | `Throw_stmt of (Token.t (* "throw" *) * expressions * semicolon)
   | `Empty_stmt of Token.t (* ";" *)
   | `Labe_stmt of (anon_choice_id_0e3c97f * Token.t (* ":" *) * statement)
+  | `Semg_for of (
+        Token.t (* "for" *) * Token.t (* "(" *) * Token.t (* "..." *)
+      * Token.t (* ")" *) * statement
+    )
 ]
 
 and statement_block = (
@@ -807,7 +787,7 @@ and statement_block = (
 )
 
 and subscript_expression = (
-    anon_choice_exp_9cd0ed5
+    anon_choice_exp_6ded967
   * Token.t (* "?." *) option
   * Token.t (* "[" *)
   * expressions
@@ -871,16 +851,41 @@ and variable_declaration = (
   * semicolon
 )
 
-and variable_declarator = (anon_choice_id_940079a * initializer_ option)
+and variable_declarator = (anon_choice_id_21dd422 * initializer_ option)
+[@@deriving sexp_of]
+
+type semgrep_partial = [
+    `Opt_async_func_id_formal_params of (
+        Token.t (* "async" *) option
+      * Token.t (* "function" *)
+      * identifier (*tok*)
+      * formal_parameters
+    )
+  | `Rep_deco_class_id_opt_class_heri of (
+        decorator list (* zero or more *)
+      * Token.t (* "class" *)
+      * identifier (*tok*)
+      * class_heritage option
+    )
+  | `If_paren_exp of (Token.t (* "if" *) * parenthesized_expression)
+  | `Try_stmt_blk of (Token.t (* "try" *) * statement_block)
+  | `Catch_clause of catch_clause
+  | `Fina_clause of finally_clause
+]
 [@@deriving sexp_of]
 
 type program = (
     hash_bang_line (*tok*) option
-  * statement list (* zero or more *)
+  * [
+        `Rep_choice_export_stmt of statement list (* zero or more *)
+      | `X___SEMGREP_PARTIAL_semg_part of (
+            Token.t (* "__SEMGREP_PARTIAL" *) * semgrep_partial
+        )
+    ]
 )
 [@@deriving sexp_of]
 
-type super (* inlined *) = Token.t (* "super" *)
+type undefined (* inlined *) = Token.t (* "undefined" *)
 [@@deriving sexp_of]
 
 type imm_tok_SLASH (* inlined *) = Token.t (* "/" *)
@@ -891,10 +896,19 @@ type meta_property (* inlined *) = (
 )
 [@@deriving sexp_of]
 
+type super (* inlined *) = Token.t (* "super" *)
+[@@deriving sexp_of]
+
+type true_ (* inlined *) = Token.t (* "true" *)
+[@@deriving sexp_of]
+
+type semgrep_rdots (* inlined *) = Token.t (* "...>" *)
+[@@deriving sexp_of]
+
 type this (* inlined *) = Token.t (* "this" *)
 [@@deriving sexp_of]
 
-type undefined (* inlined *) = Token.t (* "undefined" *)
+type semgrep_ldots (* inlined *) = Token.t (* "<..." *)
 [@@deriving sexp_of]
 
 type false_ (* inlined *) = Token.t (* "false" *)
@@ -909,7 +923,7 @@ type empty_statement (* inlined *) = Token.t (* ";" *)
 type comment (* inlined *) = Token.t
 [@@deriving sexp_of]
 
-type true_ (* inlined *) = Token.t (* "true" *)
+type semgrep_dots (* inlined *) = Token.t (* "..." *)
 [@@deriving sexp_of]
 
 type regex (* inlined *) = (
@@ -949,24 +963,6 @@ type import_statement (* inlined *) = (
 )
 [@@deriving sexp_of]
 
-type array_ (* inlined *) = (
-    Token.t (* "[" *)
-  * anon_opt_opt_choice_exp_rep_COMMA_opt_choice_exp_208ebb4
-  * Token.t (* "]" *)
-)
-[@@deriving sexp_of]
-
-type array_pattern (* inlined *) = (
-    Token.t (* "[" *)
-  * (
-        formal_parameter option
-      * (Token.t (* "," *) * formal_parameter option) list (* zero or more *)
-    )
-      option
-  * Token.t (* "]" *)
-)
-[@@deriving sexp_of]
-
 type arrow_function (* inlined *) = (
     Token.t (* "async" *) option
   * [
@@ -979,17 +975,7 @@ type arrow_function (* inlined *) = (
 [@@deriving sexp_of]
 
 type assignment_expression (* inlined *) = (
-    [
-        `Paren_exp of parenthesized_expression
-      | `Choice_member_exp of lhs_expression
-    ]
-  * Token.t (* "=" *)
-  * expression
-)
-[@@deriving sexp_of]
-
-type assignment_pattern (* inlined *) = (
-    pattern * Token.t (* "=" *) * expression
+    anon_choice_paren_exp_8725fb4 * Token.t (* "=" *) * expression
 )
 [@@deriving sexp_of]
 
@@ -1077,7 +1063,7 @@ type function_ (* inlined *) = (
     Token.t (* "async" *) option
   * Token.t (* "function" *)
   * identifier (*tok*) option
-  * call_signature
+  * formal_parameters
   * statement_block
 )
 [@@deriving sexp_of]
@@ -1086,7 +1072,7 @@ type function_declaration (* inlined *) = (
     Token.t (* "async" *) option
   * Token.t (* "function" *)
   * identifier (*tok*)
-  * call_signature
+  * formal_parameters
   * statement_block
   * automatic_semicolon (*tok*) option
 )
@@ -1097,7 +1083,7 @@ type generator_function (* inlined *) = (
   * Token.t (* "function" *)
   * Token.t (* "*" *)
   * identifier (*tok*) option
-  * call_signature
+  * formal_parameters
   * statement_block
 )
 [@@deriving sexp_of]
@@ -1107,7 +1093,7 @@ type generator_function_declaration (* inlined *) = (
   * Token.t (* "function" *)
   * Token.t (* "*" *)
   * identifier (*tok*)
-  * call_signature
+  * formal_parameters
   * statement_block
   * automatic_semicolon (*tok*) option
 )
@@ -1155,45 +1141,11 @@ type new_expression (* inlined *) = (
 )
 [@@deriving sexp_of]
 
-type object_ (* inlined *) = (
-    Token.t (* "{" *)
-  * (
-        anon_choice_pair_20c9acd option
-      * (Token.t (* "," *) * anon_choice_pair_20c9acd option)
-          list (* zero or more *)
-    )
-      option
-  * Token.t (* "}" *)
-)
-[@@deriving sexp_of]
-
-type object_assignment_pattern (* inlined *) = (
-    [
-        `Choice_choice_get of anon_choice_rese_id_9a83200
-      | `Dest_pat of destructuring_pattern
-    ]
-  * Token.t (* "=" *)
-  * expression
-)
-[@@deriving sexp_of]
-
-type object_pattern (* inlined *) = (
-    Token.t (* "{" *)
-  * (
-        anon_choice_pair_pat_3ff9cbe option
-      * (Token.t (* "," *) * anon_choice_pair_pat_3ff9cbe option)
-          list (* zero or more *)
-    )
-      option
-  * Token.t (* "}" *)
-)
-[@@deriving sexp_of]
-
 type pair (* inlined *) = (property_name * Token.t (* ":" *) * expression)
 [@@deriving sexp_of]
 
-type pair_pattern (* inlined *) = (
-    property_name * Token.t (* ":" *) * pattern
+type rest_parameter (* inlined *) = (
+    Token.t (* "..." *) * anon_choice_id_21dd422
 )
 [@@deriving sexp_of]
 
@@ -1201,6 +1153,17 @@ type return_statement (* inlined *) = (
     Token.t (* "return" *)
   * expressions option
   * semicolon
+)
+[@@deriving sexp_of]
+
+type semgrep_deep_expression (* inlined *) = (
+    Token.t (* "<..." *) * expression * Token.t (* "...>" *)
+)
+[@@deriving sexp_of]
+
+type semgrep_for (* inlined *) = (
+    Token.t (* "for" *) * Token.t (* "(" *) * Token.t (* "..." *)
+  * Token.t (* ")" *) * statement
 )
 [@@deriving sexp_of]
 
