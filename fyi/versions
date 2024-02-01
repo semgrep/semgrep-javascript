@@ -1,6 +1,6 @@
 File: semgrep-grammars/src/tree-sitter-javascript/LICENSE
 Git repo name: tree-sitter-javascript
-Latest commit in repo: 40a14276269af63cc45e67f5c1ca644c4560354b
+Latest commit in repo: 785831303ce3d36f5dd8ada7c4c7d63518d4d2f5
 Last change in file:
   commit 236a8dc0e5116ca1aca483b1a90df07f4bf3177e
   Author: Max Brunsfeld <maxbrunsfeld@gmail.com>
@@ -10,22 +10,27 @@ Last change in file:
 ---
 File: semgrep-grammars/src/tree-sitter-javascript/grammar.js
 Git repo name: tree-sitter-javascript
-Latest commit in repo: 40a14276269af63cc45e67f5c1ca644c4560354b
+Latest commit in repo: 785831303ce3d36f5dd8ada7c4c7d63518d4d2f5
 Last change in file:
-  commit e4eb58243f28eb5a6a7687e51115fb3e77d2891a
-  Author: Martin Jambon <martin@returntocorp.com>
-  Date:   Mon Apr 19 17:33:16 2021 -0700
+  commit 08f70a92f50a2373563d0e1f2a60089a02d19ca4
+  Author: fn ⌃ ⌥ <70830482+FnControlOption@users.noreply.github.com>
+  Date:   Mon Sep 20 12:40:57 2021 -0700
   
-      Remove conflict declaration that was left over by accident
+      Fix rest pattern with assignment expression (#197)
+      
+      * Fix rest pattern with assignment expression
+      
+      * Regenerate files
 ---
 File: semgrep-grammars/src/semgrep-javascript/grammar.js
-Git repo name: ocaml-tree-sitter
-Latest commit in repo: cabcef08189b12a1e040aeeff25ad3e67567348f
+Git repo name: ocaml-tree-sitter-semgrep
+Latest commit in repo: c9a8bca714137c43f8aede5ed2215193d53defc9
 Last change in file:
-  commit c8b85a93c932322e1a684055cf3dbebf96a2ef90
+  commit 483d722d2868a7d91f8bfdbb6b0703d2e9833b10
   Author: Martin Jambon <martin@r2c.dev>
-  Date:   Mon May 24 12:40:15 2021 -0700
+  Date:   Fri Jul 2 00:41:22 2021 -0700
   
-      Add dynamic conflict resolution for new conflict occurring when
-      extending 'formal_parameters' with semgrep ellipsis.
+      Move semgrep extensions for javascript out of the way since they're now
+      broken and we won't use them. We keep them around so as to reuse some of
+      it when we port it to typescript.
 ---
