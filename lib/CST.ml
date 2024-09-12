@@ -1190,3 +1190,7 @@ type yield_expression (* inlined *) = (
       | `Opt_exp of expression option
     ]
 )
+
+type extra = Comment of Loc.t * comment
+
+type extras = extra list
