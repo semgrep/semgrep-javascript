@@ -1191,6 +1191,6 @@ type yield_expression (* inlined *) = (
     ]
 )
 
-type extra = Comment of Loc.t * comment
+type extra = [ `Comment of Loc.t * comment ]
 
 type extras = extra list
